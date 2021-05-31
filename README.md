@@ -14,7 +14,7 @@ Powershell script to provision an ec2 instance and deploy sonarqube and jenkins 
 
 ### Example output
 ````
-PS C:\Users\Chris\jenkins-build> .\build.ps1
+PS C:\Users\Chris\jenkins-build> .\build.ps1 --debug
 Debug: Reservation ID is r-04e256cbeb47bf906, new instance ID is i-023787b10ee9c0d02
 Debug: New instance is not up yet, sleeping 10 seconds
 Debug: New instance is not up yet, sleeping 10 seconds
