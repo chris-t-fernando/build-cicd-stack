@@ -5,9 +5,10 @@ Powershell script to provision an ec2 instance and deploy sonarqube and jenkins 
 1. Clone the repo
 2. Create your VPC, NSGs, IAM configs etc
 3. ./build.ps1
-4. The script gives some high level debug info about what its doing, and any progress milestone messages it gets back from the instance
-5. You can monitor the progress of the build in detail by SSHing into the instance and tailing /var/log/user-data.log
-6. Once complete, you'll be prompted to:
+    - For more verbose output and progress reports, run it with the --debug parameter 
+5. The script gives some high level debug info about what its doing, and any progress milestone messages it gets back from the instance
+6. You can monitor the progress of the build in detail by SSHing into the instance and tailing /var/log/user-data.log
+7. Once complete, you'll be prompted to:
     - Change the admin password for sonarqube
     - Complete the initial config of Jenkins.  The script will give you the first time setup code to enter into the Jenkins web UI
 
