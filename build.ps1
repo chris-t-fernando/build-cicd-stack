@@ -89,4 +89,3 @@ write-output ("Finished building Jenkins on instance ID " + $instanceRequest.ins
 write-output ("Go to http://" + ((Get-EC2Instance -Filter $filter_reservation).instances).publicipaddress + ":8080 to finish Jenkins configuration.  The first time code to unlock the config is")
 write-output ((get-SSMParameter -name "/jenkins-build/server-build-jenkinscode").value)
 write-output ("Go to http://" + ((Get-EC2Instance -Filter $filter_reservation).instances).publicipaddress + ":9000 to finish Sonarqube configuration AND CHANGE THE DEFAULT PASSWORD") 
-
