@@ -1,0 +1,57 @@
+#!/bin/bash -xe
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb https://pkg.jenkins.io/debian binary/ > \
+    /etc/apt/sources.list.d/jenkins.list'
+sudo apt-get update
+sudo apt-get install awscli openjdk-11-jdk jq unzip postgresql postgresql-contrib --yes
+aws configure set default.region us-west-2
+sudo aws ssm put-parameter --name /jenkins-build/server-build-status-message --value "Reached jenkins package install" --overwrite
+sudo apt-get install jenkins --yes
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+sudo usermod --password $(echo $(sudo aws ssm get-parameter --name /jenkins-build/postgres-password --with-decryption | jq -r '.Parameter.Value') | openssl passwd -1 -stdin) postgres
+echo "ALTER USER sonar WITH ENCRYPTED password '$(sudo aws ssm get-parameter --name /jenkins-build/postgres-password --with-decryption | jq -r '.Parameter.Value')';" > bootstrap.sql
+echo "CREATE DATABASE sonar OWNER sonar;" >> bootstrap.sql
+echo "\q" >> bootstrap.sql
+sudo mv bootstrap.sql /var/lib/postgresql/
+sudo aws ssm put-parameter --name /jenkins-build/server-build-status-message --value "Reached Postgres sleep" --overwrite
+sleep 30s
+echo $(sudo aws ssm get-parameter --name /jenkins-build/postgres-password --with-decryption | jq -r '.Parameter.Value')  | su -c "createuser sonar" postgres
+echo $(sudo aws ssm get-parameter --name /jenkins-build/postgres-password --with-decryption | jq -r '.Parameter.Value')  | su -c "psql -U postgres -f /var/lib/postgresql/bootstrap.sql" postgres
+sudo useradd sonarqube
+sudo usermod --password $(echo $(sudo aws ssm get-parameter --name /jenkins-build/postgres-password --with-decryption | jq -r '.Parameter.Value') | openssl passwd -1 -stdin) sonarqube
+sudo usermod -a -G sonarqube sonarqube
+wget -nv https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.6.zip
+sudo aws ssm put-parameter --name /jenkins-build/server-build-status-message --value "Reached sonarqube" --overwrite
+sudo unzip sonarqube-7.6.zip -d /opt
+sudo mv /opt/sonarqube-7.6 /opt/sonarqube
+sudo chown -R sonarqube:sonarqube /opt/sonarqube/
+echo "sonar.jdbc.username=sonar" | sudo tee -a /opt/sonarqube/conf/sonar.properties > /dev/null
+echo "sonar.jdbc.password=$(echo $(sudo aws ssm get-parameter --name /jenkins-build/postgres-password --with-decryption | jq -r '.Parameter.Value'))" | sudo tee -a /opt/sonarqube/conf/sonar.properties  > /dev/null
+echo "sonar.jdbc.url=jdbc:postgresql://localhost/sonar" | sudo tee -a /opt/sonarqube/conf/sonar.properties > /dev/null
+echo "sonar.web.javaAdditionalOpts=-server" | sudo tee -a /opt/sonarqube/conf/sonar.properties > /dev/null
+
+echo "
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+
+ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+
+User=sonarqube
+Group=sonarqube
+Restart=always
+
+[Install]
+WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/sonar.service > /dev/null
+sudo aws ssm put-parameter --name /jenkins-build/server-build-status-message --value "Starting sonarqube" --overwrite
+sudo systemctl start sonar
+sudo systemctl enable sonar
+sudo systemctl status sonar
+sudo aws ssm put-parameter --name /jenkins-build/server-build-status --value stage1 --overwrite
+sudo aws ssm put-parameter --name /jenkins-build/server-build-jenkinscode --value $(sudo cat /var/lib/jenkins/secrets/initialAdminPassword) --type String --overwrite
