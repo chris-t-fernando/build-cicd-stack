@@ -1,7 +1,50 @@
 # cicd-build
 Powershell script to provision an ec2 instance and deploy sonarqube and jenkins to it
 
-## Requires:
+## Usage
+1. Clone the repo
+2. Create your VPC, NSGs, IAM configs etc
+3. ./build.ps1
+4. The script gives some high level debug info about what its doing, and any progress milestone messages it gets back from the instance
+5. You can monitor the progress of the build in detail by SSHing into the instance and tailing /var/log/user-data.log
+6. Once complete, you'll be prompted to:
+    - Change the admin password for sonarqube
+    - Complete the initial config of Jenkins.  The script will give you the first time setup code to enter into the Jenkins web UI
+
+### Example output
+````
+PS C:\Users\Chris\jenkins-build> .\build.ps1
+Debug: Reservation ID is r-04e256cbeb47bf906, new instance ID is i-023787b10ee9c0d02
+Debug: New instance is not up yet, sleeping 10 seconds
+Debug: New instance is not up yet, sleeping 10 seconds
+Debug: New instance is not up yet, sleeping 10 seconds
+Debug: New instance is not up yet, sleeping 10 seconds
+Debug: New instance is not up yet, sleeping 10 seconds
+Debug: New instance is not up yet, sleeping 10 seconds
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: Status update: Reached jenkins package install
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: Status update: Reached Postgres sleep
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: New instance is still running user-data, sleeping 10 seconds
+Debug: Status update: Reached sonarqube
+Debug: New instance has finished user-data
+Finished building Jenkins on instance ID i-023787b10ee9c0d02, public IP is 35.164.190.76
+Go to http://35.164.190.76:8080 to finish Jenkins configuration.  The first time code to unlock the config is
+abcdefghijklmnopqrstuvwxyz
+Go to http://35.164.190.76:9000 to finish Sonarqube configuration AND CHANGE THE DEFAULT PASSWORD
+````
+
+## To do
+1. Automate the Jenkins config that is usually UI driven
+2. Automate changing the sonarqube admin password
+
+## Requires
 - Because of hardcoded laziness/no need to gold plate:
     - AWS region us-west-2 (because AMI ID differs per region)
     - SSH keyname chris2
