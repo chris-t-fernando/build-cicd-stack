@@ -1,6 +1,25 @@
 # cicd-build
 Powershell script to provision an ec2 instance and deploy sonarqube and jenkins to it
 
+## Learning outcomes
+1. Solidified understanding of Powershell
+    - $true and $false
+    - Piping objects through to get-member for examination
+    - Functions, script parameters, variable scoping
+    - Engaging with the EC2 and SSM commandlets in Powershell
+2. Working with User Data
+    - Limited in the use of su, in that is not like an interactive session - after the su is issued, the next command does not use it
+    - Dealing with that and dynamically editing/echoing into config files using tee
+    - No blank lines
+    - Need the shebang
+    - Where you need to su, echo in the password from ssm then pipe it to su -c "<command> <parameter(s)>" user
+3. Using SSM to:
+    - Keep passwords out of plaintext
+    - Keep parameters in a central store
+    - Pass information between the user and AWS resources
+4. Automated install and preparation of postgres for sonarqube (creating DB etc)
+5. Automated install of Jenkins
+
 ## Usage
 1. Clone the repo
 2. Create your VPC, NSGs, IAM configs etc
