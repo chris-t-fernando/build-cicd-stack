@@ -8,7 +8,7 @@ Powershell script to provision an ec2 instance and deploy sonarqube and jenkins 
     - security group sg-8b5c50ee
     - my account ID
 - IAM setup
-    - A policy attached to the EC2 instances and the requesting user, allowing interaction with SSM, which is used to hand EC2 build status from the EC2 instance back to the user, as well as storing secrets (pastgres password, Jenkins initial config key etc).  This is hard coded to be named jenkins-build-ec2roleapplied.  The ARNs are hard coded too
+    - A policy attached to the EC2 instances and the requesting user, allowing interaction with SSM, which is used to hand EC2 build status from the EC2 instance back to the user, as well as storing secrets (postgres password, Jenkins initial config key etc).  This is hard coded to be named jenkins-build-ec2roleapplied.  The ARNs are hard coded too
     - A policy attached to the requesting user which allows them to give the PassRole to EC2 instances
 
 ### Network Security Group
