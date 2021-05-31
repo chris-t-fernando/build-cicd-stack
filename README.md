@@ -3,7 +3,7 @@ Powershell script to provision an ec2 instance and deploy sonarqube and jenkins 
 
 ## Requires:
 - Because of hardcoded laziness/no need to gold plate:
-AWS region us-west-2 (because AMI ID differs per region)
+    - AWS region us-west-2 (because AMI ID differs per region)
     - SSH keyname chris2
     - security group sg-8b5c50ee
     - my account ID
