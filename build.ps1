@@ -1,10 +1,38 @@
+$global:debugOn = $false
+
 function debugEcho {
 	param (
 		[parameter(mandatory)]
 		[string]$debugText
 	)
 	
-	write-output "Debug: $debugText"
+	if ( $global:debugOn )
+	{
+		write-output "Debug: $debugText"
+		
+	}
+	
+}
+
+if ( $args.count -gt 1 )
+{
+	write-host "Too many arguments.  Only one parameter is accepted, and that is --debug"
+	exit
+	
+}
+
+if ( $args.count -eq 1 )
+{
+	if ( $args[0] -eq "--debug" )
+	{
+		$global:debugOn = $true
+		write-host "Starting script with --debug enabled"
+		
+	} else {
+		write-host "Unknown argument.  Only one parameter is accepted, and that is --debug"
+		exit
+		
+	}
 	
 }
 
